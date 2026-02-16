@@ -23,8 +23,7 @@ export default {
   data() {
     return {
       highlightedElement: null,
-      highlightEl: null,
-      isClickHandlerActive: false
+      highlightEl: null
     }
   },
 
@@ -106,26 +105,11 @@ export default {
       }
     },
     
-    handleGlobalClick(event) {
-      if (this.disabled) return
-      
-      const element = elementAtPoint(event.clientX, event.clientY)
-      
-      if (element && !this.isAgentationElement(element)) {
-        this.highlightedElement = element
-        this.showHighlight(element)
-      } else {
-        this.hideHighlight()
-      }
-    },
-    
     addClickListener() {
-      this.isClickHandlerActive = true
       document.addEventListener('click', this.handleClick, true)
     },
     
     removeClickListener() {
-      this.isClickHandlerActive = false
       document.removeEventListener('click', this.handleClick, true)
     },
     

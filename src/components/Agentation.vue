@@ -92,10 +92,6 @@ export default {
     clearOnCopy: {
       type: Boolean,
       default: false
-    },
-    webhookUrl: {
-      type: String,
-      default: null
     }
   },
   
@@ -111,6 +107,7 @@ export default {
       currentSelectedText: null,
       popupPosition: { x: 0, y: 0 },
       store: null,
+      unsubscribeStore: null,
       unregisterShortcuts: null
     }
   },
@@ -136,7 +133,7 @@ export default {
     this.store = createAnnotationStore()
     this.annotations = this.store.getAll()
     
-    this.store.subscribe((anns) => {
+    this.unsubscribeStore = this.store.subscribe((anns) => {
       this.annotations = [...anns]
     })
   },
@@ -148,6 +145,10 @@ export default {
   },
   
   beforeDestroy() {
+    if (this.unsubscribeStore) {
+      this.unsubscribeStore()
+      this.unsubscribeStore = null
+    }
     this.unregisterKeyboardShortcuts()
   },
   

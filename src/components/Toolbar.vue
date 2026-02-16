@@ -113,8 +113,8 @@ export default {
       
       this.isDragging = true
       this.dragStart = {
-        x: event.clientX + this.position.x,
-        y: event.clientY + this.position.y
+        x: event.clientX - this.position.x,
+        y: event.clientY - this.position.y
       }
     },
     
