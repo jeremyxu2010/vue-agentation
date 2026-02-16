@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue-Agentation Demo</title>
+  <script src="https://lib.baomitu.com/vue/2.7.14/vue.js"></script>
+  <link rel="stylesheet" href="./dist/vue-agentation.css">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 40px;
+      background: #f5f5f5;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 32px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .card h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .btn-primary {
+      background: #4285f4;
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+    
+    .btn-danger {
+      background: #ea4335;
+      color: white;
+    }
+    
+    input[type="text"] {
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      width: 300px;
+    }
+    
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .user-info h3 {
+      margin: 0 0 4px 0;
+    }
+    
+    .user-info p {
+      margin: 0;
+      color: #666;
+    }
+    
+    .animation-demo {
+      height: 60px;
+      background: linear-gradient(90deg, #4285f4, #34a853, #fbbc04, #ea4335);
+      background-size: 300% 100%;
+      animation: gradient 3s ease infinite;
+      border-radius: 8px;
+    }
+    
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    .instructions {
+      background: #e3f2fd;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .instructions h3 {
+      margin-top: 0;
+      color: #1565c0;
+    }
+    
+    .instructions ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+    
+    .instructions li {
+      margin-bottom: 8px;
+      color: #333;
+    }
+    
+    .instructions code {
+      background: #bbdefb;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <h1>Vue-Agentation Demo</h1>
+      <p class="subtitle">Click the toolbar button to start annotating elements</p>
+      
+      <div class="instructions">
+        <h3>How to use</h3>
+        <ol>
+          <li>Click the <strong>○</strong> button in the toolbar to activate annotation mode</li>
+          <li>Hover over elements to see them highlighted</li>
+          <li>Click on any element to add an annotation</li>
+          <li>Press <code>Cmd+Shift+F</code> (Mac) or <code>Ctrl+Shift+F</code> (Windows) to toggle</li>
+          <li>Press <code>C</code> to copy annotations to clipboard</li>
+        </ol>
+      </div>
+      
+      <div class="card">
+        <h2>Buttons</h2>
+        <button class="btn btn-primary">Primary Button</button>
+        <button class="btn btn-secondary">Secondary Button</button>
+        <button class="btn btn-danger">Danger Button</button>
+      </div>
+      
+      <div class="card">
+        <h2>Form Elements</h2>
+        <p>
+          <input type="text" placeholder="Enter some text..." class="text-input">
+        </p>
+      </div>
+      
+      <div class="card">
+        <h2>User Card</h2>
+        <div class="user-card">
+          <div class="avatar"></div>
+          <div class="user-info">
+            <h3>John Doe</h3>
+            <p>Software Engineer at Example Corp</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2>Animation Demo</h2>
+        <p>Use the pause button (⏸) in the toolbar to freeze this animation:</p>
+        <div class="animation-demo"></div>
+      </div>
+      
+      <div class="card">
+        <h2>Text Selection</h2>
+        <p>Select any text in this paragraph to create a text annotation. The selected text will be included in the annotation output. This is useful for pointing out typos or content issues.</p>
+      </div>
+    </div>
+    
+    <agentation 
+      :enabled="true"
+      output-detail="standard"
+      marker-color="#ea4335"
+    />
+  </div>
+  
+  <script src="./dist/vue-agentation.umd.js"></script>
+  <script>
+    Vue.use(VueAgentation)
+    
+    new Vue({
+      el: '#app'
+    })
+  </script>
+</body>
+</html>
