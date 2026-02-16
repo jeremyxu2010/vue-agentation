@@ -18,7 +18,13 @@ function generateId() {
   return 'ann_' + timestamp + randomPart
 }
 
-function getStoredAnnotations() {
+function filterExpiredAnnotations(data) {
+  const now = Date.now()
+  const expiryMs = EXPIRY_DAYS * 24 * 60 * 60 * 1000
+  return data.filter(item => now - item.timestamp < expiryMs)
+}
+
+function loadFromStorage() {
   if (!isLocalStorageAvailable()) return []
   
   try {
@@ -26,10 +32,7 @@ function getStoredAnnotations() {
     if (!stored) return []
     
     const data = JSON.parse(stored)
-    const now = Date.now()
-    const expiryMs = EXPIRY_DAYS * 24 * 60 * 60 * 1000
-    
-    const valid = data.filter(item => now - item.timestamp < expiryMs)
+    const valid = filterExpiredAnnotations(data)
     
     if (valid.length !== data.length) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(valid))
@@ -41,7 +44,7 @@ function getStoredAnnotations() {
   }
 }
 
-function saveAnnotations(annotations) {
+function saveToStorage(annotations) {
   if (!isLocalStorageAvailable()) return
   
   try {
@@ -51,73 +54,13 @@ function saveAnnotations(annotations) {
   }
 }
 
-export function createAnnotation(options) {
-  const annotation = {
-    id: generateId(),
-    timestamp: Date.now(),
-    url: window.location.href,
-    status: 'pending',
-    ...options
-  }
-  
-  const annotations = getStoredAnnotations()
-  annotations.push(annotation)
-  saveAnnotations(annotations)
-  
-  return annotation
-}
-
-export function getAnnotations(url = null) {
-  const annotations = getStoredAnnotations()
-  if (url) {
-    return annotations.filter(a => a.url === url)
-  }
-  return annotations
-}
-
-export function updateAnnotation(id, updates) {
-  const annotations = getStoredAnnotations()
-  const index = annotations.findIndex(a => a.id === id)
-  
-  if (index !== -1) {
-    annotations[index] = { ...annotations[index], ...updates }
-    saveAnnotations(annotations)
-    return annotations[index]
-  }
-  return null
-}
-
-export function deleteAnnotation(id) {
-  const annotations = getStoredAnnotations()
-  const filtered = annotations.filter(a => a.id !== id)
-  saveAnnotations(filtered)
-  return filtered
-}
-
-export function clearAnnotations(url = null) {
-  if (url) {
-    const annotations = getStoredAnnotations().filter(a => a.url !== url)
-    saveAnnotations(annotations)
-    return annotations
-  }
-  saveAnnotations([])
-  return []
-}
-
-export function resolveAnnotation(id, resolvedBy = 'human') {
-  return updateAnnotation(id, {
-    status: 'resolved',
-    resolvedAt: new Date().toISOString(),
-    resolvedBy
-  })
-}
-
 export function createAnnotationStore() {
-  let annotations = getStoredAnnotations()
+  // Initialize from localStorage once
+  let annotations = loadFromStorage()
   const listeners = new Set()
   
   function notify() {
-    listeners.forEach(fn => fn(annotations))
+    listeners.forEach(fn => fn([...annotations]))
   }
   
   return {
@@ -126,36 +69,60 @@ export function createAnnotationStore() {
     getByUrl: (url) => annotations.filter(a => a.url === url),
     
     add: (options) => {
-      const annotation = createAnnotation(options)
-      annotations = getStoredAnnotations()
+      const annotation = {
+        id: generateId(),
+        timestamp: Date.now(),
+        url: window.location.href,
+        status: 'pending',
+        ...options
+      }
+      
+      // Add to in-memory array
+      annotations = [...annotations, annotation]
+      
+      // Persist to localStorage
+      saveToStorage(annotations)
+      
       notify()
       return annotation
     },
     
     update: (id, updates) => {
-      const updated = updateAnnotation(id, updates)
-      if (updated) {
-        annotations = getStoredAnnotations()
+      const index = annotations.findIndex(a => a.id === id)
+      
+      if (index !== -1) {
+        annotations = [
+          ...annotations.slice(0, index),
+          { ...annotations[index], ...updates },
+          ...annotations.slice(index + 1)
+        ]
+        
+        saveToStorage(annotations)
         notify()
+        return annotations[index]
       }
-      return updated
+      return null
     },
     
     remove: (id) => {
-      deleteAnnotation(id)
-      annotations = getStoredAnnotations()
+      annotations = annotations.filter(a => a.id !== id)
+      saveToStorage(annotations)
       notify()
     },
     
     clear: (url = null) => {
-      clearAnnotations(url)
-      annotations = getStoredAnnotations()
+      if (url) {
+        annotations = annotations.filter(a => a.url !== url)
+      } else {
+        annotations = []
+      }
+      saveToStorage(annotations)
       notify()
     },
     
     subscribe: (fn) => {
       listeners.add(fn)
-      fn(annotations)
+      fn([...annotations])
       return () => listeners.delete(fn)
     }
   }

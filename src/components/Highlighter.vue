@@ -23,7 +23,9 @@ export default {
   data() {
     return {
       highlightedElement: null,
-      highlightEl: null
+      highlightEl: null,
+      lastMouseMoveTime: 0,
+      mouseMoveThrottle: 50 // ms
     }
   },
 
@@ -72,6 +74,13 @@ export default {
     },
     
     handleMouseMove(event) {
+      // Throttle mousemove events
+      const now = Date.now()
+      if (now - this.lastMouseMoveTime < this.mouseMoveThrottle) {
+        return
+      }
+      this.lastMouseMoveTime = now
+      
       if (this.disabled) {
         this.hideHighlight()
         return
