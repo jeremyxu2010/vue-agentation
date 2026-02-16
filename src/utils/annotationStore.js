@@ -1,11 +1,26 @@
 const STORAGE_KEY = 'vue-agentation-annotations'
 const EXPIRY_DAYS = 7
 
+function isLocalStorageAvailable() {
+  try {
+    const test = '__storage_test__'
+    localStorage.setItem(test, test)
+    localStorage.removeItem(test)
+    return true
+  } catch {
+    return false
+  }
+}
+
 function generateId() {
-  return 'ann_' + Math.random().toString(36).substring(2, 11)
+  const timestamp = Date.now().toString(36)
+  const randomPart = Math.random().toString(36).substring(2, 11)
+  return 'ann_' + timestamp + randomPart
 }
 
 function getStoredAnnotations() {
+  if (!isLocalStorageAvailable()) return []
+  
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (!stored) return []
@@ -27,6 +42,8 @@ function getStoredAnnotations() {
 }
 
 function saveAnnotations(annotations) {
+  if (!isLocalStorageAvailable()) return
+  
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(annotations))
   } catch (e) {

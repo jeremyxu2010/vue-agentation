@@ -82,15 +82,18 @@ export function pauseAnimations() {
       animation-play-state: paused !important;
       transition-duration: 0s !important;
     }
-    video, audio {
-      pause: true;
-    }
   `
   document.head.appendChild(style)
   
   document.querySelectorAll('video, audio').forEach(el => {
-    el.dataset.agentationPaused = 'true'
-    el.pause()
+    try {
+      if (typeof el.pause === 'function') {
+        el.dataset.agentationPaused = 'true'
+        el.pause()
+      }
+    } catch {
+      // Ignore errors from unsupported media types
+    }
   })
 }
 
